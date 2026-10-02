@@ -65,7 +65,7 @@ function GlobalSearch() {
           }
         }}
         placeholder="Search conversations, documents…"
-        className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-14 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-300 focus:outline-none focus:ring-4 focus:ring-slate-100"
+        className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-14 text-sm text-slate-900 placeholder:text-slate-400 focus:border-accent/60 focus:outline-none focus:ring-4 focus:ring-accent/10"
       />
       <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded-md border border-slate-200 px-1.5 py-0.5 text-[11px] text-slate-400 sm:block">⌘K</kbd>
       {open && q.trim() && (
@@ -105,7 +105,7 @@ function UserMenu() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white ring-offset-2 hover:ring-2 hover:ring-slate-300"
+        className="flex h-10 w-10 items-center justify-center rounded-full bg-brand text-sm font-semibold text-white ring-offset-2 hover:ring-2 hover:ring-slate-300"
         aria-label="Account menu"
       >
         {initials(me.full_name || me.username)}

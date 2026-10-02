@@ -35,7 +35,7 @@ export function FileCard({ a }: { a: FileArtifact }) {
         </a>
       )}
       <a href={fileUrl(a.file_id)} download={a.filename}
-         className="flex h-9 items-center gap-1.5 rounded-lg bg-slate-900 px-3 text-sm font-medium text-white hover:bg-slate-800">
+         className="flex h-9 items-center gap-1.5 rounded-lg bg-brand px-3 text-sm font-medium text-white hover:bg-brand-hover">
         <Download className="h-4 w-4" /> Download
       </a>
     </div>

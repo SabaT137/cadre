@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 type Variant = "primary" | "secondary" | "ghost" | "danger" | "outline";
 const VARIANTS: Record<Variant, string> = {
-  primary: "bg-slate-900 text-white hover:bg-slate-800 shadow-sm",
+  primary: "bg-brand text-white hover:bg-brand-hover shadow-sm",
   secondary: "bg-slate-100 text-slate-800 hover:bg-slate-200",
   outline: "bg-white text-slate-800 border border-slate-200 hover:bg-slate-50 shadow-sm",
   ghost: "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
@@ -22,7 +22,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLBut
       disabled={disabled || loading}
       className={cn(
         "inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-colors",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2",
         "disabled:pointer-events-none disabled:opacity-50",
         size === "sm" && "h-8 px-3 text-sm",
         size === "md" && "h-10 px-4 text-sm",
@@ -72,7 +72,7 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
       ref={ref}
       className={cn(
         "h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400",
-        "focus:border-slate-400 focus:outline-none focus:ring-4 focus:ring-slate-100",
+        "focus:border-accent/60 focus:outline-none focus:ring-4 focus:ring-accent/10",
         className,
       )}
       {...props}
@@ -86,7 +86,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<H
       ref={ref}
       className={cn(
         "w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400",
-        "focus:border-slate-400 focus:outline-none focus:ring-4 focus:ring-slate-100",
+        "focus:border-accent/60 focus:outline-none focus:ring-4 focus:ring-accent/10",
         className,
       )}
       {...props}
@@ -99,7 +99,7 @@ export function Select({ className, children, ...props }: SelectHTMLAttributes<H
     <select
       className={cn(
         "h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900",
-        "focus:border-slate-400 focus:outline-none focus:ring-4 focus:ring-slate-100",
+        "focus:border-accent/60 focus:outline-none focus:ring-4 focus:ring-accent/10",
         className,
       )}
       {...props}
@@ -232,7 +232,7 @@ export function Tabs<T extends string>({ value, onChange, items }: { value: T; o
           onClick={() => onChange(it.value)}
           className={cn(
             "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
-            value === it.value ? "bg-slate-900 text-white" : "text-slate-600 hover:text-slate-900",
+            value === it.value ? "bg-brand text-white" : "text-slate-600 hover:text-slate-900",
           )}
         >
           {it.label}

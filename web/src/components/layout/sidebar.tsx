@@ -61,7 +61,7 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <div className="flex h-full flex-col">
       <div className="px-5 pb-4 pt-5">
-        <Link href="/" onClick={onNavigate}><Logo /></Link>
+        <Link href="/" onClick={onNavigate} aria-label="Cadre home"><Logo subtitle="AI Workspace" /></Link>
       </div>
       <nav className="flex-1 space-y-1 overflow-y-auto px-3 pb-4">
         {MAIN.map((item) => <NavLink key={item.href} {...item} active={isActive(item.href)} onClick={onNavigate} />)}

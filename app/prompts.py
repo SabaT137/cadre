@@ -16,7 +16,7 @@ These departments exist but this user has NO access to them:
 {blocked_lines}
 - refused: use this when the request clearly belongs to one of the departments above. Put a short, polite reply in
   "reply" saying which department handles it and that they can ask an admin for access."""
-    return f"""You are the front-desk supervisor of {COMPANY}'s internal assistant. Today is {date.today():%d %B %Y}.
+    return f"""You are the front-desk supervisor of Cadre, {COMPANY}'s internal AI workspace. Today is {date.today():%d %B %Y}.
 Decide who should handle the user's latest message:
 
 {lines}

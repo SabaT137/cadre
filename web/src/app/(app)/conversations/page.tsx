@@ -40,7 +40,7 @@ function Conversations() {
             <button
               key={a}
               onClick={() => setAgent(a)}
-              className={cn("rounded-full border px-3 py-1.5 text-sm", agent === a ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-white text-slate-600 hover:text-slate-900")}
+              className={cn("rounded-full border px-3 py-1.5 text-sm", agent === a ? "border-brand bg-brand text-white" : "border-slate-200 bg-white text-slate-600 hover:text-slate-900")}
             >
               {a === "all" ? "All" : agentTheme(a).label}
             </button>

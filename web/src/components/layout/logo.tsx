@@ -1,15 +1,17 @@
-import { Hexagon } from "lucide-react";
+/* eslint-disable @next/next/no-img-element -- small static brand assets; next/image adds nothing here */
 
-export function Logo({ subtitle = "AI Workspace" }: { subtitle?: string }) {
+/** Full Cadre wordmark (mark + "CADRE"). */
+export function Logo({ size = "md", subtitle }: { size?: "sm" | "md" | "lg"; subtitle?: string }) {
+  const height = size === "lg" ? "h-11" : size === "sm" ? "h-7" : "h-9";
   return (
-    <div className="flex items-center gap-3">
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-white shadow-sm">
-        <Hexagon className="h-5 w-5" strokeWidth={2.25} />
-      </div>
-      <div className="leading-tight">
-        <div className="text-[15px] font-semibold text-slate-900">Nexus</div>
-        <div className="text-xs text-slate-500">{subtitle}</div>
-      </div>
+    <div className="flex flex-col items-start gap-1">
+      <img src="/brand/cadre-logo.png" alt="Cadre" className={`${height} w-auto select-none`} draggable={false} />
+      {subtitle && <span className="pl-0.5 text-xs text-slate-500">{subtitle}</span>}
     </div>
   );
+}
+
+/** Hexagon network mark only, for tight spaces and loading states. */
+export function LogoMark({ className = "h-10 w-10" }: { className?: string }) {
+  return <img src="/brand/cadre-mark.png" alt="Cadre" className={`${className} select-none`} draggable={false} />;
 }

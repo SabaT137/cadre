@@ -57,7 +57,7 @@ export function fileKind(filename: string): "pdf" | "docx" | "xlsx" | "csv" | "m
   return ext === "pdf" || ext === "docx" || ext === "xlsx" || ext === "csv" || ext === "md" ? ext : "file";
 }
 
-const PENDING_KEY = "nexus:pending:";
+const PENDING_KEY = "cadre:pending:";
 export function setPendingPrompt(threadId: string, payload: { message: string; department: string }) {
   try { sessionStorage.setItem(PENDING_KEY + threadId, JSON.stringify(payload)); } catch { /* storage unavailable */ }
 }

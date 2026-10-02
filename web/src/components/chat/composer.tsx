@@ -102,7 +102,7 @@ export function Composer({
 
   return (
     <div className={cn(
-      "rounded-2xl border border-slate-200 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.06)] transition focus-within:border-slate-300 focus-within:shadow-[0_4px_16px_rgba(15,23,42,0.06)]",
+      "rounded-2xl border border-slate-200 bg-white shadow-[0_1px_3px_rgba(15,23,42,0.06)] transition focus-within:border-accent/50 focus-within:shadow-[0_4px_16px_rgba(15,23,42,0.06)]",
       variant === "hero" ? "p-4" : "p-3",
     )}>
       <textarea
@@ -132,7 +132,7 @@ export function Composer({
           aria-label="Send"
           className={cn(
             "flex h-10 w-10 items-center justify-center rounded-xl transition-colors",
-            text.trim() && !disabled ? "bg-slate-900 text-white hover:bg-slate-800" : "bg-slate-400/80 text-white",
+            text.trim() && !disabled ? "bg-brand text-white hover:bg-brand-hover" : "bg-slate-400/80 text-white",
           )}
         >
           <ArrowUp className="h-4 w-4" />

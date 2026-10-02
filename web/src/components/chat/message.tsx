@@ -36,7 +36,7 @@ export function MessageView({ m, onRetry }: { m: ChatMessage; onRetry?: (text: s
   if (m.role === "user") {
     return (
       <div className="animate-in flex justify-end">
-        <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-slate-900 px-4 py-2.5 text-[15px] leading-relaxed text-white">
+        <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-brand px-4 py-2.5 text-[15px] leading-relaxed text-white">
           {m.content}
         </div>
       </div>

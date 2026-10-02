@@ -25,7 +25,7 @@ async def lifespan(app: FastAPI):
         yield
 
 
-app = FastAPI(title="Stixor Office Multi-Agent API", version="0.2.0", lifespan=lifespan)
+app = FastAPI(title="Cadre API · Stixor AI Workspace", version="0.2.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 for r in (auth, chat, templates, finance, integrations, admin):
     app.include_router(r.router)

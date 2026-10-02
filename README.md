@@ -1,40 +1,62 @@
-# Stixor Office Assistant: Backend & Frontend Integration Guide
+# Cadre: Stixor's AI Workspace
 
-A multi-agent assistant for Stixor's departments. A **supervisor** (GLM 5.2) routes each chat message to a
+<img src="web/public/brand/cadre-logo.png" alt="Cadre" height="56">
+
+A multi-agent workspace for Stixor's departments. A **supervisor** (GLM 5.2) routes each chat message to a
 **department agent** (Qwen 3.5): **HR** (contracts), **DevOps** (IT data via SQL), **Finance** (PDF invoices),
-**PM** (the user's Jira, sprint planning) and **Developer** (brainstorming).
+**PM** (the user's Jira, sprint planning) and **Developer / Solution Engineer** (brainstorming, architecture).
 
-This README is for **frontend developers building the new UI**. It covers how to run the backend, the full API
-contract, TypeScript types, the screens to build and the flows that need special handling.
+| Part | Tech | Folder | Port |
+|---|---|---|---|
+| Backend API + agents | FastAPI, LangGraph, SQLAlchemy | `app/` | 8000 |
+| Web app (UI) | Next.js 16, React 19, Tailwind 4 | `web/` | 3000 |
+| Legacy test UIs (optional) | Streamlit | `ui/` | 8501 / 8502 |
 
 - How it was built and why: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
-- Machine-readable contract: [`docs/openapi.json`](docs/openapi.json); live Swagger UI at `http://localhost:8000/docs`
-- Reference UI: [`ui/user_app.py`](ui/user_app.py), [`ui/admin_app.py`](ui/admin_app.py). These Streamlit apps show every feature working; the new UI replaces them.
+- API contract: [`docs/openapi.json`](docs/openapi.json); live Swagger UI at `http://localhost:8000/docs`
+- Frontend details: [`web/README.md`](web/README.md)
 
 ---
 
-## 1. Run the backend
+## 1. Run it locally
 
+You need **Python 3.11+** and **Node.js 20.9+**. Run the backend and frontend in two terminals.
+
+### Terminal 1: backend (FastAPI on :8000)
 ```bash
-/opt/homebrew/bin/python3.11 -m venv .venv
-.venv/bin/pip install -r requirements.txt
-cp .env.example .env                       # ask the team for the real values
-.venv/bin/python scripts/seed_devops_db.py # demo IT database
-.venv/bin/uvicorn app.api.main:app --port 8000
+cd multiagent
+python3.11 -m venv .venv                       # first time only
+.venv/bin/pip install -r requirements.txt      # first time only
+cp .env.example .env                           # first time only, then fill in the real values
+.venv/bin/python scripts/seed_devops_db.py     # first time only (demo IT database)
+.venv/bin/uvicorn app.api.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-Optional reference UIs: `.venv/bin/streamlit run ui/user_app.py --server.port 8501` and `ui/admin_app.py --server.port 8502`.
+### Terminal 2: frontend (Next.js on :3000)
+```bash
+cd multiagent/web
+npm install                                    # first time only
+cp .env.example .env.local                     # first time only (BACKEND_URL=http://localhost:8000)
+npm run dev
+```
+Open **http://localhost:3000** and sign in.
 
-The first start creates the admin user from `ADMIN_USERNAME`/`ADMIN_PASSWORD` in `.env`. Create test users in the
-admin console or with `python scripts/create_user.py NAME PASSWORD --agents hr,finance`.
+**Production-style frontend run:** `npm run build && npm run start` (serves on :3000).
 
-**Backend settings that matter to the frontend** (`.env`):
+**Users:** the first start creates the admin from `ADMIN_USERNAME`/`ADMIN_PASSWORD` in `.env`. Add people in
+**Admin → Users**, or from the CLI:
+```bash
+.venv/bin/python scripts/create_user.py jane.doe 'S3cret!' --agents hr,finance --name "Jane Doe"   # normal user
+.venv/bin/python scripts/create_user.py boss 'S3cret!' --admin                                    # admin
+```
 
-| Variable | Why the frontend cares |
+**Backend settings that affect the frontend** (`.env`):
+
+| Variable | Purpose |
 |---|---|
-| `USER_UI_URL` | Where the Jira OAuth flow sends the browser back to. Set it to the new user app's URL, e.g. `https://office.stixor.com`. |
-| `JIRA_OAUTH_CLIENT_ID/SECRET` | When set, `/integrations/jira/status` returns `oauth_available: true`, so show the "Connect Jira" button. |
-| CORS | Currently allows `*` (no cookies are used; auth is a bearer header). It will be locked to the frontend origin before production, so tell us your origin. |
+| `USER_UI_URL` | Where the Jira OAuth flow returns the browser. Use `http://localhost:3000/settings` locally (your real domain in production). |
+| `JIRA_OAUTH_CLIENT_ID/SECRET` | When set, `/integrations/jira/status` returns `oauth_available: true`, which shows the "Connect Jira" button. |
+| CORS | Not needed for `web/`: the browser only talks to Next.js, which proxies `/api/backend/*` to FastAPI. |
 
 ---
 
@@ -123,7 +145,15 @@ export interface TableArtifact {      // e.g. PM sprint plan
 }
 
 // ---------- threads ----------
-export interface ThreadSummary { thread_id: string; title: string; updated_at: string }
+export interface ThreadSummary {
+  thread_id: string; title: string; updated_at: string; created_at: string;
+  agent: AgentName | null;            // last department agent that answered
+  turns: number;
+}
+export interface DocumentInfo {
+  file_id: string; filename: string; mime: string; kind: "contract" | "invoice" | "plan" | "file";
+  agent: string; thread_id: string; owner: string; created_at: string;
+}
 export interface HistoryMessage {
   role: "user" | "assistant";
   content: string;
@@ -197,13 +227,15 @@ export interface JiraConnectionRow {
 |---|---|---|---|
 | POST | `/chat` | `ChatRequest` | `ChatResponse` |
 | POST | `/chat/stream` | `ChatRequest` | `text/event-stream` (see §5.2) |
-| GET | `/threads` | none | `ThreadSummary[]` (latest 30, newest first) |
+| GET | `/threads` | `limit?` (default 30, max 200) | `ThreadSummary[]` (newest first, includes last `agent` and `turns`) |
 | GET | `/threads/{thread_id}` | none | `ThreadHistory` (404 if not yours) |
+| GET | `/activity` | `limit?` (≤200) | `AgentRunRow[]` (the current user's own runs) |
+| GET | `/documents` | `scope?` (`mine` or, for admins, `all`), `limit?` | `DocumentInfo[]` (files the agents generated) |
 
 ### Files & HR templates
 | Method | Path | Body / params | Returns |
 |---|---|---|---|
-| GET | `/files/{file_id}` | none | Binary file (needs the auth header, see §5.3) |
+| GET | `/files/{file_id}` | `inline?` (`true` to preview in the browser) | Binary file. Only its owner (or an admin, or Finance users for invoices) can download it. |
 | GET | `/templates` | none | `TemplateInfo[]` |
 | POST | `/templates` | multipart: `file` (.docx, max 10 MB), `name?`, `description?` | `TemplateInfo` (201) |
 | GET | `/templates/{template_id}/placeholders` | none | Detected fields (debug/preview) |
@@ -363,15 +395,17 @@ and pre-select the new `template_id`, then send it as `template_id` in HR chat r
 | PM | "For project QR, plan 2-week sprints to finish all open work by 15 December using the board's velocity." then "Export that plan as Excel." |
 | Developer | "Help me shape an internal hackathon voting app, include a Mermaid architecture diagram." |
 
-## 8. Integrating the new UI with this backend
-1. Build the UI as a separate SPA (React, Next.js, etc.) against `API_BASE_URL`. No backend changes are needed for the screens above.
-2. Point the backend's `USER_UI_URL` at the new user app (for the Jira OAuth return), and register that same callback host with Atlassian.
-3. Send us the frontend origin(s) so CORS can be restricted.
-4. Optional: we can serve the built static files from FastAPI under `/app` if you prefer a single deployment.
-5. When the new UI covers everything, the Streamlit apps in `ui/` can be removed.
+## 8. The shipped web app (`web/`)
+The Next.js app implements every screen in §6 using the Cadre brand (navy `#1C344A`, teal `#00A2AD`).
+- **Auth**: `/api/auth/login` exchanges credentials for the backend JWT and stores it in an **httpOnly cookie** (`cadre_token`). The browser never sees the token.
+- **Backend-for-frontend**: every API call goes to `/api/backend/<path>`, which a route handler forwards to FastAPI with the bearer token. SSE (`/chat/stream`) and file downloads stream through unchanged, so downloads are plain `<a href>` links.
+- **Route protection**: `src/proxy.ts` (Next 16's name for middleware) redirects visitors without a session to `/login`. FastAPI still enforces every permission.
+- Details and structure: [`web/README.md`](web/README.md).
+
+To build a different UI, follow §2–§7. The contract is identical.
 
 ## 9. Backend notes for maintainers
-- **Tests**: `.venv/bin/python -m pytest -q` (41 tests).
+- **Tests**: `.venv/bin/python -m pytest -q` (42 tests). Frontend checks: `cd web && npx tsc --noEmit && npm run lint && npm run build`.
 - **Finance settings**: `config/finance.yaml` holds bank accounts, the invoice number format, the signatory, and `apply_signature_image` (off by default).
 - **New agent**: add its tools, a node in `app/agents/subagents.py`, a prompt in `app/prompts.py` and an entry in `app/agents/registry.py`. It then shows up automatically in routing, `/auth/me`, the admin endpoints and the UIs.
 - **Regenerating the contract**: re-export `docs/openapi.json` after API changes with `curl localhost:8000/openapi.json > docs/openapi.json`.

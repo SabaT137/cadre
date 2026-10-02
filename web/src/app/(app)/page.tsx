@@ -31,7 +31,7 @@ export default function HomePage() {
         <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-[40px] sm:leading-[1.15]">
           {greeting()}, {firstName(me.full_name || me.username)}.
         </h1>
-        <p className="mt-1 text-3xl font-semibold tracking-tight text-slate-500 sm:text-[40px] sm:leading-[1.15]">
+        <p className="mt-1 text-3xl font-semibold tracking-tight text-[#4b6580] sm:text-[40px] sm:leading-[1.15]">
           How can your AI team help today?
         </p>
       </div>

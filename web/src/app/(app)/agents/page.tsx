@@ -18,7 +18,7 @@ export default function AgentsPage() {
       <PageHeader title="AI Agents" description="Specialist agents you can work with. The orchestrator routes requests automatically, or pick one directly." />
 
       <Card className="mb-8 flex items-start gap-4 p-5">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-white"><Sparkles className="h-5 w-5" /></span>
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand text-white"><Sparkles className="h-5 w-5" /></span>
         <div>
           <h3 className="font-semibold text-slate-900">Orchestrator</h3>
           <p className="mt-1 text-sm text-slate-500">

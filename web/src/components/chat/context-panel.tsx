@@ -50,7 +50,7 @@ function HrTemplates({ templateId, onTemplate }: { templateId: string | null; on
         <div className="space-y-1.5">
           <button
             onClick={() => onTemplate(null)}
-            className={cn("w-full rounded-xl border px-3 py-2 text-left text-sm", templateId === null ? "border-slate-900 bg-slate-50" : "border-slate-200 hover:bg-slate-50")}
+            className={cn("w-full rounded-xl border px-3 py-2 text-left text-sm", templateId === null ? "border-brand bg-brand-soft/60" : "border-slate-200 hover:bg-slate-50")}
           >
             <span className="font-medium text-slate-800">Let the agent choose</span>
           </button>
@@ -58,7 +58,7 @@ function HrTemplates({ templateId, onTemplate }: { templateId: string | null; on
             <button
               key={t.template_id}
               onClick={() => onTemplate(t.template_id)}
-              className={cn("flex w-full items-start gap-2 rounded-xl border px-3 py-2 text-left text-sm", templateId === t.template_id ? "border-slate-900 bg-slate-50" : "border-slate-200 hover:bg-slate-50")}
+              className={cn("flex w-full items-start gap-2 rounded-xl border px-3 py-2 text-left text-sm", templateId === t.template_id ? "border-brand bg-brand-soft/60" : "border-slate-200 hover:bg-slate-50")}
             >
               <FileText className="mt-0.5 h-4 w-4 shrink-0 text-violet-500" />
               <span className="min-w-0">

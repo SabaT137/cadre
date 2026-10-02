@@ -2,6 +2,11 @@
 @plugin "@tailwindcss/typography";
 
 @theme inline {
+  --color-brand: #1c344a;
+  --color-brand-hover: #26445f;
+  --color-brand-soft: #e8edf2;
+  --color-accent: #00a2ad;
+  --color-accent-soft: #e0f5f6;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
 }
@@ -27,22 +32,22 @@ body {
   scrollbar-color: #cbd5e1 transparent;
 }
 
-@keyframes nexus-pulse {
+@keyframes cadre-pulse {
   0%, 80%, 100% { opacity: 0.25; transform: translateY(0); }
   40% { opacity: 1; transform: translateY(-2px); }
 }
 .typing-dot {
-  animation: nexus-pulse 1.2s infinite ease-in-out;
+  animation: cadre-pulse 1.2s infinite ease-in-out;
 }
 .typing-dot:nth-child(2) { animation-delay: 0.15s; }
 .typing-dot:nth-child(3) { animation-delay: 0.3s; }
 
-@keyframes nexus-in {
+@keyframes cadre-in {
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
 .animate-in {
-  animation: nexus-in 0.2s ease-out;
+  animation: cadre-in 0.2s ease-out;
 }
 
 /* Markdown polish inside chat bubbles */

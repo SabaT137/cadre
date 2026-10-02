@@ -83,7 +83,7 @@ function Templates() {
       <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
         <p className="text-sm text-slate-500">Word templates the HR agent fills. Placeholders like [●] are detected automatically.</p>
         <input ref={ref} type="file" accept=".docx" className="hidden" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
-        <button onClick={() => ref.current?.click()} disabled={busy} className="inline-flex h-9 items-center gap-2 rounded-xl bg-slate-900 px-3 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50">
+        <button onClick={() => ref.current?.click()} disabled={busy} className="inline-flex h-9 items-center gap-2 rounded-xl bg-brand px-3 text-sm font-medium text-white hover:bg-brand-hover disabled:opacity-50">
           {busy ? <Spinner className="h-4 w-4 text-white" /> : <Upload className="h-4 w-4" />} Upload template
         </button>
       </div>

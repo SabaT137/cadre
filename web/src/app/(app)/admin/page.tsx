@@ -13,7 +13,7 @@ import type { AdminStats, AdminUser, AgentRunRow } from "@/lib/types";
 import { seconds } from "@/lib/utils";
 
 const CHART_COLORS: Record<string, string> = {
-  hr: "#8b5cf6", devops: "#3b82f6", finance: "#f97316", pm: "#14b8a6", developer: "#10b981", supervisor: "#64748b", unknown: "#cbd5e1",
+  hr: "#8b5cf6", devops: "#3b82f6", finance: "#f97316", pm: "#14b8a6", developer: "#10b981", supervisor: "#1c344a", unknown: "#cbd5e1",
 };
 
 function Kpi({ icon: Icon, label, value, hint }: { icon: typeof Activity; label: string; value: string; hint?: string }) {
@@ -137,7 +137,7 @@ function Overview() {
                         <span className="font-medium text-slate-800">@{u.user}</span>
                         <span className="tabular-nums text-slate-500">{u.runs} · {pct}%</span>
                       </div>
-                      <div className="mt-1.5 h-1.5 rounded-full bg-slate-100"><div className="h-1.5 rounded-full bg-slate-800" style={{ width: `${pct}%` }} /></div>
+                      <div className="mt-1.5 h-1.5 rounded-full bg-slate-100"><div className="h-1.5 rounded-full bg-brand" style={{ width: `${pct}%` }} /></div>
                     </li>
                   );
                 })}

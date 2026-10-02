@@ -4,14 +4,14 @@ import { useState } from "react";
 import { SessionProvider } from "@/components/layout/session";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
-import { Logo } from "@/components/layout/logo";
+import { LogoMark } from "@/components/layout/logo";
 import { Spinner } from "@/components/ui/primitives";
 import { ToastProvider } from "@/components/ui/toast";
 
 function Loading() {
   return (
     <div className="flex h-full flex-col items-center justify-center gap-4">
-      <Logo />
+      <LogoMark className="h-14 w-14 animate-pulse" />
       <Spinner />
     </div>
   );

@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cadre web app
 
-## Getting Started
+The Next.js 16 frontend for Cadre, Stixor's AI workspace. It talks to the FastAPI backend in the parent folder.
 
-First, run the development server:
+## Run
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local     # BACKEND_URL=http://localhost:8000
+npm run dev                    # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Production: `npm run build && npm run start`. Checks: `npx tsc --noEmit && npm run lint`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The backend must be running (`uvicorn app.api.main:app --port 8000` from the repo root).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## How it connects to the backend
 
-## Learn More
+```
+Browser ──► Next.js (:3000) ──► FastAPI (:8000)
+            │
+            ├─ /api/auth/login    POST credentials → backend /auth/login → sets httpOnly cookie `cadre_token`
+            ├─ /api/auth/logout   clears the cookie
+            └─ /api/backend/*     forwards any method to FastAPI with `Authorization: Bearer <cookie>`
+                                   (streams SSE and file downloads through unchanged)
+```
 
-To learn more about Next.js, take a look at the following resources:
+- `src/proxy.ts`: redirects to `/login` when there is no session cookie (Next 16 "Proxy", formerly middleware).
+- The JWT never reaches browser JavaScript. All authorization is enforced by FastAPI.
+- `BACKEND_URL` is read **server-side only**.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+  app/
+    login/                       sign-in page
+    (app)/layout.tsx             shell: sidebar + top bar + session + toasts
+    (app)/page.tsx               Home: greeting, composer, suggestions, agent cards, recents
+    (app)/chat/[threadId]/       chat with streaming, artifacts, context panel
+    (app)/agents | conversations | documents | activity | settings
+    (app)/admin/                 overview (charts) | users | agents | integrations
+    api/auth/{login,logout}      cookie handling
+    api/backend/[...path]        BFF proxy to FastAPI
+    icon.png, apple-icon.png     favicon (Cadre mark)
+  components/
+    layout/   sidebar, topbar (search ⌘K, system status, user menu), logo, session
+    chat/     composer (agent picker), message, markdown (+ Mermaid), artifacts, context panel
+    agents/   agent card, Jira connection card
+    admin/    runs table + run drawer, admin guard
+    ui/       buttons, inputs, modal, drawer, tabs, toggle, toast, data table
+  lib/
+    api.ts     fetch wrapper (+ SWR fetcher, file URLs, logout)
+    stream.ts  SSE reader for /chat/stream
+    agents.ts  per-agent colours, icons, capabilities, example prompts
+    types.ts   API types (mirror ../README.md §3)
+public/brand/  cadre-logo.png, cadre-mark.png
+```
 
-## Deploy on Vercel
+## Brand
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Navy `#1C344A` (`bg-brand`), teal accent `#00A2AD` (`text-accent`). Tokens live in `src/app/globals.css`.
+- Agent accents: HR violet, DevOps blue, Finance orange, PM teal, Solution Engineer green.
+- Font: Inter (UI), JetBrains Mono (code).

@@ -65,7 +65,7 @@ export const AGENT_THEME: Record<Responder, AgentTheme> = {
   },
   supervisor: {
     name: "supervisor", label: "Orchestrator", title: "Orchestrator", tagline: "Routes your request",
-    icon: Sparkles, accent: "bg-slate-800", tint: "bg-slate-100", text: "text-slate-700", ring: "ring-slate-200",
+    icon: Sparkles, accent: "bg-brand", tint: "bg-accent-soft", text: "text-accent", ring: "ring-accent/30",
     capabilities: [], examples: [],
   },
 };

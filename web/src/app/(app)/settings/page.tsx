@@ -33,7 +33,7 @@ export default function SettingsPage() {
         <Card>
           <CardHeader title="Profile" description="Managed by your workspace administrator." />
           <div className="flex items-center gap-4 p-5">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-slate-900 text-lg font-semibold text-white">{initials(me.full_name || me.username)}</div>
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand text-lg font-semibold text-white">{initials(me.full_name || me.username)}</div>
             <div>
               <div className="text-lg font-semibold text-slate-900">{me.full_name || me.username}</div>
               <div className="text-sm text-slate-500">@{me.username}</div>

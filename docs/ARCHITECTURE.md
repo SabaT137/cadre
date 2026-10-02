@@ -1,4 +1,4 @@
-# Stixor Office Multi-Agent System: Architecture & Build Record (as built, Oct 2026)
+# Cadre (Stixor AI Workspace): Architecture & Build Record (as built, Oct 2026)
 
 > This document records **what was built and how**, for anyone joining the project.
 > To build a new frontend, use `README.md` (the API contract) and `docs/openapi.json`.
@@ -32,7 +32,8 @@ There are two kinds of users:
   - pypdf, used once to pull the logo and signature out of the sample invoice
   - openpyxl for Excel exports
 - **Jira**: httpx async client against Jira Cloud REST v3 and Agile 1.0, using OAuth 2.0 (3LO) or an API token.
-- **Streamlit**: two reference UIs (`ui/user_app.py`, `ui/admin_app.py`). A new frontend will replace them.
+- **Next.js 16 web app** (`web/`): the production UI, branded **Cadre**. It acts as a backend-for-frontend: an httpOnly JWT cookie, with `/api/backend/*` proxied to FastAPI (including SSE and downloads).
+- **Streamlit**: legacy reference UIs (`ui/`), kept for quick testing.
 
 ## 3. LLMs: one OpenAI-compatible gateway (vLLM)
 `LLM_BASE_URL=https://occgocg0g00g8wggko88kw8s.138.252.175.111.sslip.io/v1`. Each model has its own key, set in `.env`.
@@ -126,8 +127,21 @@ app/integrations/jira/{client.py, store.py, oauth.py}
 app/api/{main.py, schemas.py, routes/{auth, chat, templates, finance, integrations, admin}.py}
 config/finance.yaml      ui/{common.py, user_app.py, admin_app.py}      scripts/{seed_devops_db.py, create_user.py}
 storage/{templates, outputs, invoice_assets}      data/ (generated DBs)      docs/{ARCHITECTURE.md, openapi.json}
-tests/ (41 tests: docx filler, SQL guard, JSON loop and routing, auth and permissions, invoices, planner, Jira client)
+tests/ (42 tests: docx filler, SQL guard, JSON loop and routing, auth and permissions, invoices, planner, Jira client)
 ```
+
+## 7a. Web app (`web/`)
+- **Screens**:
+  - **Home**: greeting, composer with an agent picker, suggestion chips, colour-coded agent cards, recent conversations and documents.
+  - **Chat**: live streaming, showing "routing…" and then "<Agent> is working…" with a timer. Replies render as Markdown with Mermaid, with file, SQL and table results underneath. A side panel adapts to the agent: HR templates and upload, Finance recent invoices, PM Jira connection.
+  - **Other user pages**: AI Agents, My Conversations (search and filter), Documents (generated files, templates, invoices), Activity (own runs, with step-by-step detail), Settings (profile, agents, Jira).
+  - **Admin**: overview (KPIs and Recharts charts, plus the activity log), Users (create and edit, role, allowed agents), Agents & access (toggles, stats, tools), Integrations (Jira connections, revoke).
+- **Backend additions made for the UI**:
+  - `documents` table: every generated file is recorded with its owner, and `/files` now enforces owner, admin, or Finance for invoices.
+  - `/documents`, `/activity`.
+  - Threads now carry the last agent and turn count.
+  - `?inline=true` for PDF previews.
+- **Brand**: Cadre logo (`web/public/brand`), navy `#1C344A`, teal `#00A2AD`.
 
 ## 8. Verified behaviour (live, against the real gateway and Jira)
 - **Routing**: correct on mixed prompts, follow-ups stay with the same agent, greetings are answered directly, and disallowed departments are politely refused.
@@ -138,7 +152,7 @@ tests/ (41 tests: docx filler, SQL guard, JSON loop and routing, auth and permis
 - **Admin console**: KPIs, charts, agent toggles, run drill-down with steps, user management and integrations.
 
 ## 9. Known limits / next steps
-- **Downloads**: any logged-in user who has a file id can download that file. Files aren't yet tied to an owner (planned: add `owner_id` to outputs).
+- **Downloads**: files are now tied to their owner (documents table). Files created before that change are visible only to admins, except invoices.
 - **Speed**: each agent reply takes about 20–70 seconds on the gateway. `/chat/stream` sends a `route` event early, so the UI can show which agent is working.
 - **CORS**: currently `*`. Restrict it to the new frontend's origin before deploying.
 - **Connect Jira button**: needs the Atlassian OAuth app to be registered and `JIRA_OAUTH_CLIENT_ID`/`SECRET` set. Until then, PMs use API tokens.

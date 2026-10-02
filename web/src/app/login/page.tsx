@@ -43,7 +43,7 @@ function LoginForm() {
           <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
             id="username" autoComplete="username" autoFocus value={username} onChange={(e) => setUsername(e.target.value)}
-            className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm focus:border-slate-400 focus:outline-none focus:ring-4 focus:ring-slate-100"
+            className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm focus:border-accent/60 focus:outline-none focus:ring-4 focus:ring-accent/10"
             placeholder="your.username"
           />
         </div>
@@ -54,7 +54,7 @@ function LoginForm() {
           <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
             id="password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)}
-            className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm focus:border-slate-400 focus:outline-none focus:ring-4 focus:ring-slate-100"
+            className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 text-sm focus:border-accent/60 focus:outline-none focus:ring-4 focus:ring-accent/10"
             placeholder="••••••••"
           />
         </div>
@@ -71,10 +71,10 @@ export default function LoginPage() {
   return (
     <div className="grid min-h-full lg:grid-cols-2">
       <div className="flex flex-col justify-between bg-white px-6 py-8 sm:px-12">
-        <Logo />
+        <Logo size="lg" />
         <div className="mx-auto w-full max-w-sm py-12">
           <h1 className="text-3xl font-semibold tracking-tight text-slate-900">Welcome back</h1>
-          <p className="mb-8 mt-2 text-slate-500">Sign in to your AI workspace.</p>
+          <p className="mb-8 mt-2 text-slate-500">Sign in to Cadre, your AI workspace.</p>
           <Suspense>
             <LoginForm />
           </Suspense>
@@ -83,7 +83,7 @@ export default function LoginPage() {
         <p className="text-xs text-slate-400">© {new Date().getFullYear()} Stixor Technologies</p>
       </div>
       <div className="relative hidden overflow-hidden bg-slate-50 lg:flex lg:items-center lg:justify-center">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,#ede9fe,transparent_45%),radial-gradient(circle_at_80%_70%,#dbeafe,transparent_45%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,#e0f5f6,transparent_45%),radial-gradient(circle_at_80%_70%,#e8edf2,transparent_50%)]" />
         <div className="relative max-w-md px-10">
           <p className="text-sm font-medium text-slate-500">Your AI team</p>
           <h2 className="mt-2 text-3xl font-semibold leading-tight text-slate-900">One workspace. Five specialist agents.</h2>

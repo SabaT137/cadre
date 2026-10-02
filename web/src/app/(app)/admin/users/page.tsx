@@ -23,7 +23,7 @@ function AgentPicker({ value, onChange }: { value: AgentName[]; onChange: (v: Ag
             key={a}
             type="button"
             onClick={() => onChange(on ? value.filter((x) => x !== a) : [...value, a])}
-            className={cn("flex items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition", on ? "border-slate-900 bg-slate-50" : "border-slate-200 hover:bg-slate-50")}
+            className={cn("flex items-center gap-2 rounded-xl border px-3 py-2 text-left text-sm transition", on ? "border-brand bg-brand-soft/60" : "border-slate-200 hover:bg-slate-50")}
           >
             <span className={cn("flex h-7 w-7 items-center justify-center rounded-lg", t.tint, t.text)}><t.icon className="h-3.5 w-3.5" /></span>
             <span className="flex-1 font-medium text-slate-800">{t.label}</span>
@@ -90,7 +90,7 @@ function Users() {
                   <tr key={u.id} className="hover:bg-slate-50/60">
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-3">
-                        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white">{initials(u.full_name || u.username)}</span>
+                        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand text-xs font-semibold text-white">{initials(u.full_name || u.username)}</span>
                         <div>
                           <div className="font-medium text-slate-900">{u.full_name || u.username}</div>
                           <div className="text-xs text-slate-500">@{u.username}</div>
