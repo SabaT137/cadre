@@ -1,0 +1,48 @@
+# Finance agent configuration. Edited by admins only; the LLM never writes bank details.
+company:
+  legal_name: Stixor Technologies Private Limited
+  wordmark: STIXOR
+  tagline: Technologies
+  suffix: Pvt Ltd
+  address: Plaza 229, 3rd Floor, Hotel View Square, Spring North, Bahria Phase 7, Islamabad
+  logo: storage/invoice_assets/logo.png
+  footer_lines:
+    - "Tel: 051-8740326"
+    - info@stixor.com
+    - www.stixor.com
+
+signatory:
+  name: Sanan bin Tahir
+  title: CEO Stixor Technologies
+  # Scanned signature found in the original invoice. Off by default so generated invoices are signed by hand
+  # (or set to true once Finance approves auto-applying it).
+  signature_image: storage/invoice_assets/signature.png
+  apply_signature_image: false
+
+invoice:
+  number_format: "STX-{year}-{seq:04d}"
+  default_currency: USD
+  payment_terms_days: 15
+  date_format: "%d/%m/%Y"
+  intro: >-
+    Please find enclosed our invoice for the professional fees and development services provided to
+    "{client}" for {service}. Kindly pay the requisite amount in the invoices by wire transfer in the name of
+    "{beneficiary}".
+
+currency_symbols:
+  USD: "$"
+  EUR: "€"
+  GBP: "£"
+  PKR: "Rs "
+  AED: "AED "
+
+bank_accounts:
+  - id: usd_first_century
+    label: USD – USA First Century Bank
+    currency: USD
+    bank_name: USA First Century Bank
+    bank_address: 1701 N Elm St  Commerce, GA 30009
+    beneficiary: Stixor Technologies Private Limited
+    account_number: "40300000000010"
+    iban: PK20 ASCM 0002 0004 2000 0234   # copied from the sample invoice – please verify
+    swift: FCSSUS32
