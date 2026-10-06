@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { mutate as globalMutate } from "swr";
 import { ContextPanel } from "@/components/chat/context-panel";
 import { Composer } from "@/components/chat/composer";
-import { MessageView, ThinkingView, type ChatMessage } from "@/components/chat/message";
+import { MessageView, ThinkingView, type ChatMessage, type PartProgress } from "@/components/chat/message";
 import { useStartChat } from "@/components/chat/use-start-chat";
 import { useSession } from "@/components/layout/session";
 import { Button, Spinner } from "@/components/ui/primitives";
@@ -24,7 +24,9 @@ export default function ChatPage() {
   const startChat = useStartChat();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loaded, setLoaded] = useState(false);
-  const [pending, setPending] = useState<{ stage: "routing" | "working"; agent: Responder | null; startedAt: number } | null>(null);
+  const [pending, setPending] = useState<{
+    stage: "routing" | "working"; agent: Responder | null; startedAt: number; parts: PartProgress[]; synthesizing: boolean;
+  } | null>(null);
   const [department, setDepartment] = useState<Department>("auto");
   const [templateId, setTemplateId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
@@ -35,7 +37,7 @@ export default function ChatPage() {
   const send = useCallback(async (text: string, dept: Department) => {
     const userMsg: ChatMessage = { id: crypto.randomUUID(), role: "user", content: text };
     setMessages((m) => [...m, userMsg]);
-    setPending({ stage: dept === "auto" ? "routing" : "working", agent: dept === "auto" ? null : dept, startedAt: Date.now() });
+    setPending({ stage: dept === "auto" ? "routing" : "working", agent: dept === "auto" ? null : dept, startedAt: Date.now(), parts: [], synthesizing: false });
     let routeReason: string | null = null;
     let gotMessage = false;
     try {
@@ -43,11 +45,22 @@ export default function ChatPage() {
         if (ev.event === "route") {
           routeReason = ev.data.reason;
           setPending((p) => p && { ...p, stage: "working", agent: ev.data.agent });
+        } else if (ev.event === "progress") {
+          const d = ev.data;
+          setPending((p) => {
+            if (!p) return p;
+            if (d.type === "synthesis") return { ...p, synthesizing: true };
+            if (!d.agent) return p;
+            const others = p.parts.filter((x) => x.agent !== d.agent);
+            const prev = p.parts.find((x) => x.agent === d.agent);
+            const next = { agent: d.agent, status: d.status } as PartProgress;
+            return { ...p, parts: prev ? p.parts.map((x) => (x.agent === d.agent ? next : x)) : [...others, next] };
+          });
         } else if (ev.event === "message") {
           gotMessage = true;
           setMessages((m) => [...m, {
             id: crypto.randomUUID(), role: "assistant", content: ev.data.content,
-            agent: ev.data.agent, routeReason, artifacts: ev.data.artifacts,
+            agent: ev.data.agent, routeReason, artifacts: ev.data.artifacts, parts: ev.data.parts,
           }]);
         } else if (ev.event === "error") {
           throw new ApiError(502, ev.data.detail);
@@ -73,18 +86,18 @@ export default function ChatPage() {
     setMessages([]);
     setLoaded(false);
     (async () => {
-      try {
-        // A hand-over from Home/Agents means this thread was just created client-side: no history yet.
-        if (pendingPrompt) return;
-        const h = await api<ThreadHistory>(`/threads/${threadId}`);
-        setMessages(h.messages.map((m, i) => ({
-          id: `h${i}`, role: m.role, content: m.content, agent: m.agent ?? null, artifacts: m.artifacts,
-        })));
-      } catch (e) {
-        if (!(e instanceof ApiError && e.status === 404)) console.error(e);
-      } finally {
-        setLoaded(true);
+      // A hand-over from Home/Agents means this thread was just created client-side: no history to load.
+      if (!pendingPrompt) {
+        try {
+          const h = await api<ThreadHistory>(`/threads/${threadId}`);
+          setMessages(h.messages.map((m, i) => ({
+            id: `h${i}`, role: m.role, content: m.content, agent: m.agent ?? null, artifacts: m.artifacts, parts: m.parts,
+          })));
+        } catch (e) {
+          if (!(e instanceof ApiError && e.status === 404)) console.error(e);
+        }
       }
+      setLoaded(true);
       if (pendingPrompt) {
         const dept = (pendingPrompt.department as Department) || "auto";
         setDepartment(dept);
@@ -142,7 +155,7 @@ export default function ChatPage() {
               </div>
             )}
             {messages.map((m) => <MessageView key={m.id} m={m} onRetry={(t) => send(t, department)} />)}
-            {pending && <ThinkingView agent={pending.agent} stage={pending.stage} startedAt={pending.startedAt} />}
+            {pending && <ThinkingView agent={pending.agent} stage={pending.stage} startedAt={pending.startedAt} parts={pending.parts} synthesizing={pending.synthesizing} />}
           </div>
         </div>
 

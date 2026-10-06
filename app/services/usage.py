@@ -95,9 +95,10 @@ def record_documents(user_id: int, thread_id: str, agent: str, artifacts: list[d
         with session_scope() as s:
             for a in files:
                 if s.get(Document, a["file_id"]) is None:
-                    s.add(Document(file_id=a["file_id"], user_id=user_id, thread_id=thread_id, agent=agent,
+                    owner_agent = a.get("agent") or agent  # multi-agent artifacts carry their own agent
+                    s.add(Document(file_id=a["file_id"], user_id=user_id, thread_id=thread_id, agent=owner_agent,
                                    filename=a.get("filename", a["file_id"]), mime=a.get("mime", ""),
-                                   kind=_doc_kind(agent, a.get("filename", ""))))
+                                   kind=_doc_kind(owner_agent, a.get("filename", ""))))
     except Exception:
         log.exception("Failed to record documents")
 

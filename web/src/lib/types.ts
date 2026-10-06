@@ -1,7 +1,8 @@
 // Mirrors the FastAPI contract (see ../README.md §3 and docs/openapi.json).
 export type AgentName = "hr" | "devops" | "finance" | "pm" | "developer";
 export type Department = "auto" | AgentName;
-export type Responder = AgentName | "supervisor";
+export type Responder = AgentName | "supervisor" | "multi";
+export interface PartInfo { agent: AgentName; task: string; ok: boolean }
 
 export interface AgentInfo { name: AgentName; label: string; icon: string; summary: string }
 
@@ -27,7 +28,7 @@ export interface TableArtifact { type: "table"; title: string; columns: string[]
 export type Artifact = FileArtifact | SqlArtifact | TableArtifact;
 
 export interface ChatRequest { message: string; thread_id?: string | null; department?: Department; template_id?: string | null }
-export interface ChatResponse { thread_id: string; reply: string; agent: Responder; route_reason: string | null; artifacts: Artifact[] }
+export interface ChatResponse { thread_id: string; reply: string; agent: Responder; route_reason: string | null; artifacts: Artifact[]; parts?: PartInfo[] }
 
 export interface ThreadSummary {
   thread_id: string;
@@ -37,7 +38,7 @@ export interface ThreadSummary {
   agent: AgentName | null;
   turns: number;
 }
-export interface HistoryMessage { role: "user" | "assistant"; content: string; agent?: Responder | null; artifacts: Artifact[] }
+export interface HistoryMessage { role: "user" | "assistant"; content: string; agent?: Responder | null; artifacts: Artifact[]; parts?: PartInfo[] }
 export interface ThreadHistory { thread_id: string; messages: HistoryMessage[] }
 
 export interface TemplateInfo { template_id: string; name: string; description: string; placeholder_count: number; uploaded_at: string }

@@ -16,19 +16,40 @@ These departments exist but this user has NO access to them:
 {blocked_lines}
 - refused: use this when the request clearly belongs to one of the departments above. Put a short, polite reply in
   "reply" saying which department handles it and that they can ask an admin for access."""
+    multi = ""
+    if len(available) >= 2:
+        multi = """- multi: ONLY when one message explicitly asks for work from two or more different departments above
+  (e.g. "draft the contract AND find a laptop AND check Jira"). Fill "tasks" with one entry per department
+  (max 3): {"agent": "<name>", "instruction": "<self-contained instruction>"}. Each instruction must carry every
+  detail that agent needs (names, numbers, dates, IDs) because agents do not see each other's work. Never use multi
+  for a single-department request or for a follow-up.
+"""
     return f"""You are the front-desk supervisor of Cadre, {COMPANY}'s internal AI workspace. Today is {date.today():%d %B %Y}.
 Decide who should handle the user's latest message:
 
 {lines}
 - respond: greetings, thanks, questions about what this assistant can do, or anything that fits no department.
   Put your short, friendly reply in "reply" (mention only the departments listed above).
-{blocked}
+{multi}{blocked}
 The agent that handled the previous turn was: {active_agent or "none"}. If the new message is a follow-up to that
 conversation (answering its questions, "yes", "change X", "and the ones in Lahore?"), route to the same agent.
-Reply with a JSON object: {{"next": "...", "reason": "...", "reply": "..."}}."""
+Reply with a JSON object: {{"next": "...", "reason": "...", "reply": "...", "tasks": [...]}}."""
 
 
 SUPERVISOR_REPLY_FALLBACK = "Hi! How can I help you today?"
+
+
+def synthesis_prompt() -> str:
+    return f"""You are Cadre, {COMPANY}'s AI workspace. Several specialist agents each handled one part of the user's
+request. Combine their results into ONE clear reply for the user, in markdown:
+- Start with a one- or two-sentence overview of what was done.
+- Then one section per agent, in the order given, with a heading like "### HR – Contract". Keep every concrete fact
+  they reported (names, numbers, file names, invoice numbers, issue keys). Summarise long tables to the
+  ~5 most relevant rows (the full tables are attached).
+- If an agent asked for missing information or failed, say so clearly in its section.
+- Mention that generated files and full tables are attached below the reply.
+- End with a short "Next steps" list when useful.
+Never invent facts that are not in the agents' results. Do not mention internal tool names."""
 
 
 def hr_prompt(attached_template_id: str | None) -> str:

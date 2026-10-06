@@ -13,7 +13,7 @@ import type { AdminStats, AdminUser, AgentRunRow } from "@/lib/types";
 import { seconds } from "@/lib/utils";
 
 const CHART_COLORS: Record<string, string> = {
-  hr: "#8b5cf6", devops: "#3b82f6", finance: "#f97316", pm: "#14b8a6", developer: "#10b981", supervisor: "#1c344a", unknown: "#cbd5e1",
+  hr: "#8b5cf6", devops: "#3b82f6", finance: "#f97316", pm: "#14b8a6", developer: "#10b981", supervisor: "#1c344a", multi: "#00a2ad", unknown: "#cbd5e1",
 };
 
 function Kpi({ icon: Icon, label, value, hint }: { icon: typeof Activity; label: string; value: string; hint?: string }) {

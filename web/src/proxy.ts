@@ -14,7 +14,8 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
   if (pathname === "/login") {
-    return hasSession ? NextResponse.redirect(new URL("/", request.url)) : NextResponse.next();
+    // Always reachable, even with a session, so people can switch accounts.
+    return NextResponse.next();
   }
   if (!hasSession) {
     const url = new URL("/login", request.url);

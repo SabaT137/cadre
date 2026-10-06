@@ -1,5 +1,7 @@
 "use client";
 
+import { announceAuthChange } from "./auth-events";
+
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
     super(message);
@@ -15,7 +17,11 @@ function detailMessage(data: unknown, fallback: string): string {
   return fallback;
 }
 
+let signingOut = false;
+
 export function goToLogin() {
+  // During sign-out, background requests 401 too; let logout() do the redirect (without a ?next=).
+  if (signingOut) return;
   if (typeof window !== "undefined" && window.location.pathname !== "/login") {
     const next = window.location.pathname + window.location.search;
     // Full reload on purpose: drops all cached SWR data from the expired session.
@@ -50,7 +56,9 @@ export const fileUrl = (fileId: string, inline = false) =>
   `/api/backend/files/${encodeURIComponent(fileId)}${inline ? "?inline=true" : ""}`;
 
 export async function logout() {
+  signingOut = true;
   await fetch("/api/auth/logout", { method: "POST" });
+  announceAuthChange({ type: "logout" });
   // Full reload on purpose: clears every cached response from the signed-out session.
   // eslint-disable-next-line @next/next/no-location-assign-relative-destination
   window.location.href = "/login";

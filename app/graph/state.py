@@ -14,3 +14,4 @@ class OfficeState(MessagesState):
     route_reason: Optional[str]
     artifacts: list[dict]                # files / tables produced this turn
     trace: list[dict]                    # sub-agent steps this turn (admin drill-down)
+    plan: list[dict]                     # multi-agent turn: [{"agent", "instruction"}] chosen by the supervisor

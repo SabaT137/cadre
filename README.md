@@ -50,6 +50,11 @@ Open **http://localhost:3000** and sign in.
 .venv/bin/python scripts/create_user.py boss 'S3cret!' --admin                                    # admin
 ```
 
+**Switching users:** use the avatar menu → **Switch account** (or open `/login`). All tabs of one browser share a
+single session, so the other tabs reload as the new user. To use two accounts **at the same time** (e.g. admin +
+normal user), open the second one in a private/incognito window, or use `http://127.0.0.1:3000` in one tab and
+`http://localhost:3000` in another (cookies are per host).
+
 **Backend settings that affect the frontend** (`.env`):
 
 | Variable | Purpose |
@@ -317,7 +322,8 @@ for (;;) {
 |---|---|---|
 | `thread` | `{thread_id}` | First. Store it. |
 | `route` | `{agent: Responder \| "supervisor", reason}` | After routing (about 2–6 s). Show e.g. "💵 Finance is working…". |
-| `message` | `{agent, content, artifacts: Artifact[]}` | The final reply (the reply arrives in one piece, not token by token). |
+| `progress` | `{type: "part", agent, status: "started"\|"done"\|"error", task?}` or `{type: "synthesis", status: "started"}` | Multi-agent turns only: live per-agent progress. |
+| `message` | `{agent, content, artifacts: Artifact[], parts?: {agent, task, ok}[]}` | The final reply (the reply arrives in one piece, not token by token). `agent: "multi"` with `parts` when several agents contributed. |
 | `error` | `{detail}` | The agent failed. |
 | `done` | `{}` | Always last. |
 

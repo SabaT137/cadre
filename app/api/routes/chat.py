@@ -45,7 +45,7 @@ def _inputs(req: ChatRequest, user: CurrentUser, usage_cb) -> tuple[dict, dict, 
 
 
 def _agent_name(route: str | None) -> str:
-    return route if route in AGENTS else "supervisor"
+    return route if route in AGENTS or route == "multi" else "supervisor"
 
 
 @router.post("/chat", response_model=ChatResponse)
@@ -76,6 +76,7 @@ async def chat(req: ChatRequest, request: Request, user: CurrentUser = Depends(c
         agent=_agent_name(route),
         route_reason=state.get("route_reason"),
         artifacts=state.get("artifacts") or [],
+        parts=last.additional_kwargs.get("parts", []) if isinstance(last, AIMessage) else [],
     )
 
 
@@ -95,7 +96,10 @@ async def chat_stream(req: ChatRequest, request: Request, user: CurrentUser = De
         route, reason, trace, error = None, "", [], ""
         yield sse("thread", {"thread_id": thread_id})
         try:
-            async for update in graph.astream(inputs, config, stream_mode="updates"):
+            async for mode, update in graph.astream(inputs, config, stream_mode=["updates", "custom"]):
+                if mode == "custom":  # multi-agent progress
+                    yield sse("progress", update)
+                    continue
                 for node, delta in update.items():
                     if not delta:
                         continue
@@ -108,7 +112,8 @@ async def chat_stream(req: ChatRequest, request: Request, user: CurrentUser = De
                         usage.record_documents(user.id, thread_id, node, delta["artifacts"])
                     if msgs:
                         yield sse("message", {"agent": node, "content": msgs[-1].content,
-                                              "artifacts": delta.get("artifacts") or []})
+                                              "artifacts": delta.get("artifacts") or [],
+                                              "parts": msgs[-1].additional_kwargs.get("parts", [])})
         except Exception as e:
             log.exception("Graph failed")
             error = f"{e.__class__.__name__}: {e}"
@@ -151,5 +156,6 @@ async def thread_history(thread_id: str, request: Request, user: CurrentUser = D
             out.append(HistoryMessage(role="user", content=str(m.content)))
         elif isinstance(m, AIMessage):
             out.append(HistoryMessage(role="assistant", content=str(m.content), agent=m.name,
-                                      artifacts=m.additional_kwargs.get("artifacts", [])))
+                                      artifacts=m.additional_kwargs.get("artifacts", []),
+                                      parts=m.additional_kwargs.get("parts", [])))
     return ThreadHistory(thread_id=thread_id, messages=out)

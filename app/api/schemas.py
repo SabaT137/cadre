@@ -18,6 +18,7 @@ class ChatResponse(BaseModel):
     agent: str
     route_reason: Optional[str] = None
     artifacts: list[dict[str, Any]] = []
+    parts: list[dict[str, Any]] = []  # multi-agent turns: [{"agent", "task", "ok"}]
 
 
 class HistoryMessage(BaseModel):
@@ -25,6 +26,7 @@ class HistoryMessage(BaseModel):
     content: str
     agent: Optional[str] = None
     artifacts: list[dict[str, Any]] = []
+    parts: list[dict[str, Any]] = []
 
 
 class ThreadHistory(BaseModel):

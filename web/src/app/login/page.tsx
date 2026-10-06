@@ -1,12 +1,39 @@
 "use client";
 
-import { ArrowRight, Lock, User } from "lucide-react";
+import { ArrowRight, Lock, User, UserCheck } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import Link from "next/link";
+import { Suspense, useEffect, useState } from "react";
 import { Logo } from "@/components/layout/logo";
 import { Button } from "@/components/ui/primitives";
 import { AGENT_ORDER, agentTheme } from "@/lib/agents";
+import { announceAuthChange } from "@/lib/auth-events";
+import type { Me } from "@/lib/types";
 import { cn } from "@/lib/utils";
+
+/** If this browser already has a session, say who it belongs to (signing in below replaces it). */
+function CurrentSession() {
+  const [me, setMe] = useState<Me | null>(null);
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/backend/auth/me", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => alive && setMe(d))
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
+  if (!me) return null;
+  return (
+    <div className="mb-6 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm">
+      <UserCheck className="h-4 w-4 shrink-0 text-accent" />
+      <span className="min-w-0 flex-1 text-slate-600">
+        Signed in as <span className="font-medium text-slate-900">{me.full_name || me.username}</span> (@{me.username}).
+        Sign in below to switch account.
+      </span>
+      <Link href="/" className="shrink-0 font-medium text-slate-900 hover:underline">Continue →</Link>
+    </div>
+  );
+}
 
 function LoginForm() {
   const params = useSearchParams();
@@ -27,6 +54,7 @@ function LoginForm() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(typeof data.detail === "string" ? data.detail : "Sign in failed");
+      announceAuthChange({ type: "login", userId: data.user?.id });
       const next = params.get("next");
       window.location.href = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
     } catch (err) {
@@ -75,6 +103,7 @@ export default function LoginPage() {
         <div className="mx-auto w-full max-w-sm py-12">
           <h1 className="text-3xl font-semibold tracking-tight text-slate-900">Welcome back</h1>
           <p className="mb-8 mt-2 text-slate-500">Sign in to Cadre, your AI workspace.</p>
+          <CurrentSession />
           <Suspense>
             <LoginForm />
           </Suspense>

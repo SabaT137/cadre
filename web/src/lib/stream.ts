@@ -1,12 +1,13 @@
 "use client";
 
 import { ApiError, goToLogin } from "./api";
-import type { Artifact, ChatRequest, Responder } from "./types";
+import type { AgentName, Artifact, ChatRequest, PartInfo, Responder } from "./types";
 
 export type StreamEvent =
   | { event: "thread"; data: { thread_id: string } }
   | { event: "route"; data: { agent: Responder; reason: string } }
-  | { event: "message"; data: { agent: Responder; content: string; artifacts: Artifact[] } }
+  | { event: "message"; data: { agent: Responder; content: string; artifacts: Artifact[]; parts?: PartInfo[] } }
+  | { event: "progress"; data: { type: "part" | "synthesis"; agent?: AgentName; status: "started" | "done" | "error"; task?: string } }
   | { event: "error"; data: { detail: string } }
   | { event: "done"; data: Record<string, never> };
 

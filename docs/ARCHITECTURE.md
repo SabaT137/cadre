@@ -67,6 +67,12 @@ START → supervisor ──► hr | devops | finance | pm | developer ──► 
 - **Department nodes** (`app/agents/subagents.py`): each runs its loop over the last 20 messages, as plain text. It appends one AI message, `name=<agent>`, with `additional_kwargs.artifacts`, so history can re-render downloads.
 - **Per-user tool context** (`app/agents/context.py`): a `ContextVar` passes the current user into tools. Finance uses it to record who created an invoice; PM uses it to pick that user's Jira connection.
 
+### Multi-agent turns (`app/graph/orchestrator.py`)
+- **Planning:** when one message asks for work from 2–3 departments, the supervisor returns `next: "multi"` with `tasks: [{agent, instruction}]`. Each instruction is self-contained. Tasks are limited to agents this user may use, one per agent, at most 3.
+- **Running:** the `multi` node runs those agents **in parallel**. A failing part doesn't sink the others; it is reported as failed. LangGraph custom stream events are sent as SSE `progress` events, so the UI shows per-agent badges live.
+- **Combining:** **Qwen** merges the results, because it writes about 4× faster than GLM on this gateway (about 22 s versus about 100 s for the same summary). GLM keeps the short planning step. Files and tables from every agent are attached, and each is recorded as a document for the agent that produced it.
+- **Measured:** an HR + DevOps + Finance request finished in about 80 s and produced a contract and an invoice.
+
 ## 5. Departments in detail
 ### HR: contracts (`tools/hr_tools.py`, `services/docx_filler.py`, `services/template_store.py`)
 - **Detection**: positional `[●]`, `[insert …]`, `{{field}}`, `____`, and empty `Label:` lines are found and numbered, each with its section heading and surrounding text. This works across the body, tables, headers and footers.

@@ -1,5 +1,5 @@
 import {
-  Compass, Database, KanbanSquare, Receipt, Sparkles, Users, type LucideIcon,
+  Compass, Workflow, Database, KanbanSquare, Receipt, Sparkles, Users, type LucideIcon,
 } from "lucide-react";
 import type { AgentName, Responder } from "./types";
 
@@ -62,6 +62,11 @@ export const AGENT_THEME: Record<Responder, AgentTheme> = {
       "Help me shape an internal hackathon voting app, include a Mermaid architecture diagram.",
       "Compare Postgres and MongoDB for an event-sourcing system.",
     ],
+  },
+  multi: {
+    name: "multi", label: "Multi-agent", title: "Orchestrator", tagline: "Combined answer from several agents",
+    icon: Workflow, accent: "bg-brand", tint: "bg-accent-soft", text: "text-accent", ring: "ring-accent/30",
+    capabilities: [], examples: [],
   },
   supervisor: {
     name: "supervisor", label: "Orchestrator", title: "Orchestrator", tagline: "Routes your request",

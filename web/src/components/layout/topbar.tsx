@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut, Menu, MessagesSquare, Search, Settings } from "lucide-react";
+import { LogOut, Menu, MessagesSquare, Search, Settings, UserRoundCog } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -119,7 +119,10 @@ function UserMenu() {
           <Link href="/settings" onClick={() => setOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
             <Settings className="h-4 w-4" /> Settings
           </Link>
-          <button onClick={logout} className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
+          <Link href="/login" onClick={() => setOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
+            <UserRoundCog className="h-4 w-4" /> Switch account
+          </Link>
+          <button onClick={logout} className="flex w-full items-center gap-2 border-t border-slate-100 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
             <LogOut className="h-4 w-4" /> Sign out
           </button>
         </div>
